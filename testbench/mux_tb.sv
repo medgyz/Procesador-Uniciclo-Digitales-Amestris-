@@ -1,7 +1,7 @@
 // ============================================================
 // Proyecto: Procesador RISC-V Uniciclo
 // Curso: Diseño de Sistemas Digitales
-// Grupo: TODO
+// Grupo: 1
 //
 // Testbench: Multiplexor 2 a 1
 //
@@ -17,7 +17,7 @@
 // ------------------------------------------------------------
 // Fecha       | Autor              | Descripción
 // ------------------------------------------------------------
-// ____/____/  | _________________  | Primera versión
+// 20/10/2026  | John Hibbert Bonilla  | Primera versión
 //
 // ============================================================
 
@@ -27,7 +27,8 @@ module mux_tb;
     logic [31:0] B;
     logic        Select;
     logic [31:0] Y;
-
+    integer pass_count = 0;
+    integer fail_count = 0;
     mux2to1 #(.WIDTH(32)) dut (
         .A(A),
         .B(B),
@@ -43,20 +44,69 @@ module mux_tb;
         // ====================================================
         // TEST 1 - Select = 0
         // ====================================================
+
         Select = 0;
         #10;
-        // TODO: Verificar que Y corresponda a la entrada A.
-
+                if (Y === A) begin
+            $display("MUX-01 | SELECT-A | PASS | Y=%h", Y);
+            pass_count = pass_count + 1;
+        end
+        else begin
+            $display("MUX-01 | SELECT-A | FAIL | Y=%h | Esperado=%h", Y, A);
+            fail_count = fail_count + 1;
+        end
         // ====================================================
         // TEST 2 - Select = 1
         // ====================================================
-        // TODO: Seleccionar B y verificar el resultado.
+
+        Select = 1;
+        #10;
+
+        if (Y === B) begin
+            $display("MUX-02 | SELECT-B | PASS | Y=%h", Y);
+            pass_count = pass_count + 1;
+        end
+        else begin
+            $display("MUX-02 | SELECT-B | FAIL | Y=%h | Esperado=%h", Y, B);
+            fail_count = fail_count + 1;
+        end
 
         // ====================================================
         // TEST 3 - Prueba adicional
         // ====================================================
-        // TODO: Definir nuevos valores y comprobar ambos casos.
 
+        A = 32'h0000000A;
+        B = 32'h00000014;
+
+        Select = 0;
+        #10;
+
+        if (Y === A) begin
+            $display("MUX-03A | SELECT-A | PASS | Y=%h", Y);
+            pass_count = pass_count + 1;
+        end
+        else begin
+            $display("MUX-03A | SELECT-A | FAIL | Y=%h | Esperado=%h", Y, A);
+            fail_count = fail_count + 1;
+        end
+
+        Select = 1;
+        #10;
+
+        if (Y === B) begin
+            $display("MUX-03B | SELECT-B | PASS | Y=%h", Y);
+            pass_count = pass_count + 1;
+        end
+        else begin
+            $display("MUX-03B | SELECT-B | FAIL | Y=%h | Esperado=%h", Y, B);
+            fail_count = fail_count + 1;
+        end
+
+        $display("--------------------------------");
+        $display("Resumen de pruebas del MUX");
+        $display("PASS: %0d", pass_count);
+        $display("FAIL: %0d", fail_count);
+        $display("--------------------------------");
         $finish;
     end
 
