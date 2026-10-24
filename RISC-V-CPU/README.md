@@ -55,9 +55,9 @@ Para abrir y ejecutar la simulación de cada módulo, acceda a los siguientes en
 
 ---
 
-## 📊 Matriz de Pruebas Funcionales
+## Matriz de Pruebas Funcionales
 
-A continuación se detalla la matriz de pruebas ejecutada para la verificación funcional de cada módulo SystemVerilog:
+La matriz de pruebas ejecutada para la verificación funcional de cada módulo SystemVerilog es:
 
 | ID | Módulo | Entrada / Condición | Resultado Esperado | Resultado Obtenido | Estado |
 | :--- | :--- | :--- | :--- | :--- | :---: |
