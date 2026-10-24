@@ -1,0 +1,192 @@
+\documentclass[12pt,a4paper]{article}
+
+% ==========================================
+% PAQUETES DE CONFIGURACIÓN
+% ==========================================
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=3cm}
+
+\begin{document}
+
+% ==========================================
+% PORTADA
+% ==========================================
+\begin{titlepage}
+    \centering
+    {\scshape\LARGE Instituto Tecnológico de Costa Rica \par}
+    \vspace{0.8cm}
+    {\scshape\Large Escuela de Ingeniería en Electrónica \par}
+    \vspace{0.8cm}
+    {\scshape\Large Diseño de Sistemas Digitales (EL-3310) \par}
+    \vspace{0.8cm}
+    {\scshape\LARGE Profesor: Ing. Michael González Vega \par}
+    \vspace{1.5cm}
+    {\huge\bfseries Informe Técnico Corto \par}
+    \vspace{0.4cm}
+    {\Large\bfseries Capítulo 1: Los Cimientos \par}
+    \vspace{0.6cm}
+    {\large Diseño e Implementación de Componentes Base para un Procesador RISC-V Uniciclo \par}
+    \vspace{1.5cm}
+    
+    {\Large \textbf{Integrantes}} \\
+    \vspace{0.5cm}
+    {\large Ximena Araya Brenes (Carné: 2024122095) --- \textbf{Team Lead} \par}
+    \vspace{0.2cm}
+    {\large Kevin Méndez Carvajal (Carné: 2023328177) --- \textbf{Hardware Developer} \par}
+    \vspace{0.2cm}
+    {\large John Hibbert Bonilla (Carné: 2024062788) --- \textbf{Verification Engineer} \par}
+    \vspace{0.2cm}
+    {\large Jason Ulloa Picado (Carné: 2024159001) --- \textbf{Documentation \& Configuration Engineer} \par}
+
+\end{titlepage}
+
+\newpage
+
+% ==========================================
+% 1. DESCRIPCIÓN GENERAL DE LOS COMPONENTES
+% ==========================================
+\section{Descripción General de los Componentes}
+En esta primera etapa del proyecto final, se diseñaron, implementaron y verificaron funcionalmente los módulos digitales en SystemVerilog. Los componentes desarrollados son:
+
+\begin{itemize}
+    \item \textbf{Unidad Lógica Aritmética (\texttt{alu.sv}):} Módulo combinacional de 32 bits encargado de las operaciones aritméticas y lógicas (\texttt{ADD}, \texttt{SUB}, \texttt{AND}, \texttt{OR}), generando la bandera \texttt{Zero} cuando el resultado es igual a cero.
+    \item \textbf{Banco de Registros (\texttt{register\_file.sv}):} Arreglo de 32 registros de 32 bits con dos puertos de lectura asíncrona y un puerto de escritura síncrona habilitado por la señal \texttt{RegWrite}.
+    \item \textbf{Generador de Inmediatos (\texttt{imm\_gen.sv}):} Módulo encargado de extraer y reconstruir los inmediatos que vienen de las instrucciones, haciendo la extensión de signo a 32 bits para formatos I-type y S-type.
+    \item \textbf{Multiplexor 2:1 (\texttt{mux.sv}):} Selector diseñado para el enrutamiento y selección de datos dentro del datapath.
+\end{itemize}
+
+% ==========================================
+% 2. DECISIONES PRINCIPALES DE DISEÑO
+% ==========================================
+\section{Decisiones Principales de Diseño}
+
+\subsection{Unidad Lógica Aritmética (ALU)}
+La ALU fue implementada mediante un bloque combinacional \texttt{always\_comb} que evalúa el código de operación \texttt{ALUControl} de 4 bits. La señal \texttt{Zero} se implementó combinacionalmente comprobando si el bus del resultado equivale a cero (\texttt{assign Zero = (Result == 32'b0)}).
+
+\subsection{Banco de Registros e Inviolabilidad de $x0$}
+Para asegurarn que el registro $x0$ siempre esté en cero sin importar los intentos de escritura, se añadió una condición de validación en la lógica síncrona:
+\begin{verbatim}
+always_ff @(posedge clk) begin
+    if (RegWrite && (A3 != 5'd0))
+        registers[A3] <= WD3;
+end
+\end{verbatim}
+Las lecturas en los puertos \texttt{RD1} y \texttt{RD2} son asíncronas y retornan \texttt{32'b0} si se direcciona $x0$.
+
+\subsection{Generador de Inmediatos}
+Se implementó un multiplexor interno controlado por la señal \texttt{ImmSrc}:
+\begin{itemize}
+    \item \textbf{ImmSrc = 00 (I-type):} Concatenación de \texttt{\{\{20\{instr[31]\}\}, instr[31:20]\}}.
+    \item \textbf{ImmSrc = 01 (S-type):} Concatenación de \texttt{\{\{20\{instr[31]\}\}, instr[31:25], instr[11:7]\}}.
+\end{itemize}
+
+% ==========================================
+% 3. VERIFICACIÓN
+% ==========================================
+\section{Verificación}
+Cada componente posee un testbench autocontenido (\texttt{*\_tb.sv}) que usa estímulos de prueba y valida de forma automática el valor esperado contra el obtenido, imprimiendo en la consola el estado de \texttt{PASS} o \texttt{FAIL}.
+
+% ==========================================
+% 4. MATRIZ DE PRUEBAS Y RESULTADOS
+% ==========================================
+\section{Resultados Obtenidos y Matriz de Pruebas}
+Se detalla la matriz de pruebas ejecutada para la comprobación funcional de todos los módulos desarrollados:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l p{4.2cm} p{3.8cm} c}
+\toprule
+\textbf{ID} & \textbf{Módulo} & \textbf{Entrada / Condición} & \textbf{Resultado Esperado} & \textbf{Estado} \\
+\midrule
+ALU-01 & ALU & ADD: A=15, B=7, Ctrl=0000 & Result=22, Zero=0 & PASS \\
+ALU-02 & ALU & SUB: A=15, B=7, Ctrl=0001 & Result=8, Zero=0 & PASS \\
+ALU-03 & ALU & SUB: A=10, B=10, Ctrl=0001 & Result=0, Zero=1 & PASS \\
+ALU-04 & ALU & AND: A=0xF0F0F0F0, B=0xFF00FF00 & Result=0xF000F000 & PASS \\
+ALU-05 & ALU & OR: A=0xF0F0F0F0, B=0x0F0F0F0F & Result=0xFFFFFFFF & PASS \\
+ALU-06 & ALU & Resultado Negativo: A=3, B=5 & Result=-2 (0xFFFFFFFE) & PASS \\
+\hline
+RF-01 & Register File & Write x5=25; Read x5 & RD1=25 & PASS \\
+RF-02 & Register File & Read x5 y x6 simultáneo & RD1=25, RD2=14 & PASS \\
+RF-03 & Register File & Write x0=100; Read x0 & RD1=0 & PASS \\
+\hline
+IMM-01 & Imm Gen & I-type (+): 0x00F00293 & ImmExt=0x0000000F & PASS \\
+IMM-02 & Imm Gen & I-type (-): 0xFFF00293 & ImmExt=0xFFFFFFFF & PASS \\
+IMM-03 & Imm Gen & S-type (+): 0x00528223 & ImmExt=0x00000004 & PASS \\
+IMM-04 & Imm Gen & S-type (-): 0xFE528223 & ImmExt=0xFFFFFFFE & PASS \\
+\hline
+MUX-01 & MUX & sel = 0 & Out = d0 & PASS \\
+MUX-02 & MUX & sel = 1 & Out = d1 & PASS \\
+\bottomrule
+\end{tabular}
+\caption{Matriz de pruebas funcional de los módulos base.}
+\end{table}
+
+% ==========================================
+% 5. PROBLEMAS ENCONTRADOS Y SOLUCIONES
+% ==========================================
+\section{Problemas Encontrados y Soluciones}
+\begin{itemize}
+    \item \textbf{Escritura involuntaria en la dirección $x0$:} Inicialmente, los valores dirigidos a $x0$ modificaban la posición 0 del arreglo. Se solucionó añadiendo la condición de guarda \texttt{A3 != 5'd0} en la habilitación de escritura.
+    \item \textbf{Manejo de extensión de signo en inmediatos negativos:} Habían dudas al mapear el bit de signo de instrucciones S-type. Se resolvió fijando la concatenación explícita con repetición del bit \texttt{instr[31]} de acuerdo con la especificación RISC-V RV32I.
+\end{itemize}
+
+% ==========================================
+% 6. CONCLUSIONES
+% ==========================================
+\section{Conclusiones}
+\begin{itemize}
+    \item Se diseñaron e implementaron con éxito los cuatro módulos base (\texttt{alu}, \texttt{register\_file}, \texttt{imm\_gen} y \texttt{mux}) en SystemVerilog.
+    \item La verificación automática en los testbenches permitió confirmar que no habían errores en las operaciones lógicas, aritméticas, almacenamiento de registros y extensiones de signo.
+    \item Los cimientos del procesador se encuentran completamente probados, documentados y listos para integrarse en el datapath.
+\end{itemize}
+
+% ==========================================
+% BIBLIOGRAFÍA Y REFERENCIAS
+% ==========================================
+\begin{thebibliography}{9}
+
+\bibitem{patterson}
+\bibitem{harris}
+S. L. Harris y D. Harris, 
+\textit{Digital Design and Computer Architecture: RISC-V Edition}, 
+Morgan Kaufmann, 2021.
+
+\bibitem{riscv_spec}
+RISC-V International, 
+\textit{The RISC-V Instruction Set Manual, Volume I: Unprivileged ISA}, 
+Document Version 20191213, 2019. [En línea]. Disponible en: \url{https://riscv.org/technical/specifications/}
+
+\bibitem{systemverilog}
+IEEE Computer Society, 
+\textit{IEEE Standard for SystemVerilog--Unified Hardware Design, Specification, and Verification Language}, 
+IEEE Std 1800-2017, 2017.
+
+\bibitem{patterson2021computer}
+D. A. Patterson y J. L. Hennessy, 
+\emph{Computer Organization and Design RISC-V Edition: The hardware/software interface}. 
+Morgan Kaufmann, 2.ª ed., 2021.
+
+\bibitem{patterson2017guia}
+D. Patterson y A. Waterman, 
+\emph{Guía práctica de RISC-V. El Atlas de una Arquitectura Abierta}. 
+Strawberry Canyon LLC, 1.ª ed., 2017.
+
+\bibitem{tec_guia}
+M. González Vega, 
+\textit{Especificación del Proyecto Final: Capítulo 1 - Los Cimientos}, 
+Curso EL-3310 Diseño de Sistemas Digitales, Instituto Tecnológico de Costa Rica, 2026.
+
+\end{thebibliography}
+
+\end{document}
