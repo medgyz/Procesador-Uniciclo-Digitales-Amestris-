@@ -45,37 +45,42 @@ RISC-V-CPU/
 
 Para abrir y ejecutar la simulación de cada módulo, acceda a los siguientes enlaces de EDA Playground:
 
-**ALU:** [Enlace a EDA Playground de ALU]
+**ALU:** <https://edaplayground.com/x/MBYt>
 
-**Register File:** [Enlace a EDA Playground de Register File]
+**Register File:** <https://edaplayground.com/x/i8qn>
 
-**Immediate Generator:** [Enlace a EDA Playground de Immediate Generator]
+**Immediate Generator:** <https://edaplayground.com/x/T888>
 
-**MUX:** [Enlace a EDA Playground de MUX]
+**MUX:** <https://edaplayground.com/x/dvgr>
 
 ---
 
 ## Matriz de Pruebas Funcionales
 
-La matriz de pruebas ejecutada para la verificación funcional de cada módulo SystemVerilog es:
+La matriz de pruebas ejecutada para la verificación funcional de todos los módulos SystemVerilog (incluyendo la prueba de inyección de falla controlada en la ALU para validar la autocomprobación del testbench) es:
 
 | ID | Módulo | Entrada / Condición | Resultado Esperado | Resultado Obtenido | Estado |
 | :--- | :--- | :--- | :--- | :--- | :---: |
-| **ALU-01** | ALU | Operación ADD: `A = 15, B = 7, ALUControl = 0000` | `Result = 22, Zero = 0` | `Result = 22, Zero = 0` | **PASS** |
-| **ALU-02** | ALU | Operación SUB: `A = 15, B = 7, ALUControl = 0001` | `Result = 8, Zero = 0` | `Result = 8, Zero = 0` | **PASS** |
-| **ALU-03** | ALU | Operación SUB (Detección Cero): `A = 10, B = 10, ALUControl = 0001` | `Result = 0, Zero = 1` | `Result = 0, Zero = 1` | **PASS** |
-| **ALU-04** | ALU | Operación AND: `A = 0xF0F0F0F0, B = 0xFF00FF00, ALUControl = 0010` | `Result = 0xF000F000, Zero = 0` | `Result = 0xF000F000, Zero = 0` | **PASS** |
-| **ALU-05** | ALU | Operación OR: `A = 0xF0F0F0F0, B = 0x0F0F0F0F, ALUControl = 0011` | `Result = 0xFFFFFFFF, Zero = 0` | `Result = 0xFFFFFFFF, Zero = 0` | **PASS** |
-| **ALU-06** | ALU | Resultado Negativo: `A = 3, B = 5, ALUControl = 0001` | `Result = -2 (0xFFFFFFFE), Zero = 0` | `Result = -2 (0xFFFFFFFE), Zero = 0` | **PASS** |
-| **RF-01** | Register File | Escritura y lectura en `x5`: `A3 = 5, WD3 = 25, RegWrite = 1` | `RD1 = 25` (al leer `A1 = 5`) | `RD1 = 25` | **PASS** |
-| **RF-02** | Register File | Doble lectura simultánea: `A1 = 5 (25), A2 = 6 (14)` | `RD1 = 25, RD2 = 14` | `RD1 = 25, RD2 = 14` | **PASS** |
-| **RF-03** | Register File | Intento de escritura en `x0`: `A3 = 0, WD3 = 100, RegWrite = 1` | `RD1 = 0` (al leer `A1 = 0`) | `RD1 = 0` | **PASS** |
-| **IMM-01** | Imm Gen | I-type positivo: `instr = 0x00F00293, ImmSrc = 00` | `ImmExt = 0x0000000F` | `ImmExt = 0x0000000F` | **PASS** |
-| **IMM-02** | Imm Gen | I-type negativo (Extensión de signo): `instr = 0xFFF00293, ImmSrc = 00` | `ImmExt = 0xFFFFFFFF` | `ImmExt = 0xFFFFFFFF` | **PASS** |
-| **IMM-03** | Imm Gen | S-type positivo: `instr = 0x00528223, ImmSrc = 01` | `ImmExt = 0x00000004` | `ImmExt = 0x00000004` | **PASS** |
-| **IMM-04** | Imm Gen | S-type negativo (Extensión de signo): `instr = 0xFE528223, ImmSrc = 01` | `ImmExt = 0xFFFFFFFE` | `ImmExt = 0xFFFFFFFE` | **PASS** |
-| **MUX-01** | MUX | Selección de entrada 0: `d0 = 0xAAAA, d1 = 0xBBBB, sel = 0` | `y = 0xAAAA` | `y = 0xAAAA` | **PASS** |
-| **MUX-02** | MUX | Selección de entrada 1: `d0 = 0xAAAA, d1 = 0xBBBB, sel = 1` | `y = 0xBBBB` | `y = 0xBBBB` | **PASS** |
+| **ALU-01** | ALU | Operación ADD: `A = 5, B = 3, ALUControl = 0000` | `Result = 8, Zero = 0` | `Result = 8, Zero = 0` | **PASS** |
+| **ALU-02** | ALU | Operación SUB: `A = 5, B = 3, ALUControl = 0001` | `Result = 2, Zero = 0` | `Result = 2, Zero = 0` | **PASS** |
+| **ALU-03** | ALU | Operación AND: `A = 5, B = 3, ALUControl = 0010` | `Result = 1, Zero = 0` | `Result = 1, Zero = 0` | **PASS** |
+| **ALU-04** | ALU | Operación OR: `A = 5, B = 3, ALUControl = 0011` | `Result = 7, Zero = 0` | `Result = 7, Zero = 0` | **PASS** |
+| **ALU-05** | ALU | Detección de Cero (ZERO): `A = 5, B = 5, ALUControl = 0001` | `Result = 0, Zero = 1` | `Result = 0, Zero = 1` | **PASS** |
+| **ALU-06** | ALU | Resultado Negativo (SUB): `A = 3, B = 5, ALUControl = 0001` | `Result = -2 (0xFFFFFFFE), Zero = 0` | `Result = -2 (0xFFFFFFFE), Zero = 0` | **PASS** |
+| **ALU-07** | ALU | Prueba de Inyección de Falla: `A = 5, B = 3, ALUControl = 0000` | `Result = 9` *(Prueba de falla)* | `Result = 8` | **FAIL** *(Esperado)* |
+| **RF-01** | Register File | Escritura y lectura en x1: `A3 = 1, WD3 = 25, RegWrite = 1` | `RD1 = 25` | `RD1 = 25` | **PASS** |
+| **RF-02** | Register File | Lectura dual simultánea: `A1 = 1 (40), A2 = 2 (60)` | `RD1 = 40, RD2 = 60` | `RD1 = 40, RD2 = 60` | **PASS** |
+| **RF-03** | Register File | Intento de escritura en x0: `A3 = 0, WD3 = 100, RegWrite = 1` | `RD1 = 0` | `RD1 = 0` | **PASS** |
+| **RF-04** | Register File | Escritura deshabilitada (`RegWrite = 0`): `A3 = 3, WD3 = 99` | `RD1 = 75` *(Valor sin cambios)* | `RD1 = 75` | **PASS** |
+| **IMM-01** | Imm Gen | I-type positivo: `instr (Imm = 5), ImmSrc = 00` | `ImmExt = 0x00000005` | `ImmExt = 0x00000005` | **PASS** |
+| **IMM-02** | Imm Gen | I-type negativo (Extensión de signo): `instr (Imm = -1), ImmSrc = 00` | `ImmExt = 0xFFFFFFFF` | `ImmExt = 0xFFFFFFFF` | **PASS** |
+| **IMM-03** | Imm Gen | S-type positivo: `instr (Imm = 0), ImmSrc = 01` | `ImmExt = 0x00000000` | `ImmExt = 0x00000000` | **PASS** |
+| **IMM-04** | Imm Gen | S-type negativo (Extensión de signo): `instr (Imm = -4), ImmSrc = 01` | `ImmExt = 0xFFFFFFFC` | `ImmExt = 0xFFFFFFFC` | **PASS** |
+| **IMM-05** | Imm Gen | S-type positivo: `instr (Imm = 32), ImmSrc = 01` | `ImmExt = 0x00000020` | `ImmExt = 0x00000020` | **PASS** |
+| **MUX-01** | MUX | Selección Entrada A: `d0 = 0x12345678, d1 = 0xABCDEF00, sel = 0` | `y = 0x12345678` | `y = 0x12345678` | **PASS** |
+| **MUX-02** | MUX | Selección Entrada B: `d0 = 0x12345678, d1 = 0xABCDEF00, sel = 1` | `y = 0xABCDEF00` | `y = 0xABCDEF00` | **PASS** |
+| **MUX-03A**| MUX | Alternancia Entrada A: `d0 = 0x0000000A, d1 = 0x00000014, sel = 0` | `y = 0x0000000A` | `y = 0x0000000A` | **PASS** |
+| **MUX-03B**| MUX | Alternancia Entrada B: `d0 = 0x0000000A, d1 = 0x00000014, sel = 1` | `y = 0x00000014` | `y = 0x00000014` | **PASS** |
 
 ---
 
