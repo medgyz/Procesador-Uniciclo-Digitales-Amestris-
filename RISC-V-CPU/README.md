@@ -35,7 +35,7 @@ RISC-V-CPU/
 │   ├── mux_sim
 │   └── rf_sim
 ├── docs/                   # Documentación técnica e informe
-│   └── Informe de Proyecto - DD/
+│   └── Grupo01informe.pdf
 └── README.md               # Archivo de presentación y enlaces
 ```
 
