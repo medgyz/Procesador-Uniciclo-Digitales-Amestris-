@@ -18,7 +18,7 @@
 //
 // Historial de modificaciones:
 // ------------------------------------------------------------
-// Fecha       | Autor                  | Descripción
+// Fecha       | Autor                  | Descripcióna
 // ------------------------------------------------------------
 // 06/11/26    | Kevin Méndez Carvajal  | Primera versión
 //
