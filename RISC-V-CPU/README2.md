@@ -103,6 +103,24 @@ Cada comprobación imprime `[PASS]` o `[FAIL]` con el valor obtenido y el espera
 | Unitarias Cap. 1: ALU | 6/7 (ALU-07 falla por valor esperado erróneo en el testbench; ver informe) |
 | Unitarias Cap. 1: Imm. Gen., MUX, Register File | 5/5, 4/4, 4/4 |
 
-AÑADIR MATRIZ DE PRUEBAS
+
+## Matriz de pruebas
+
+| ID | Instrucción / Secuencia | Condición Inicial | Resultado Esperado | Resultado Obtenido | Estado |
+|:---:|:---|:---|:---|:---|:---:|
+| TC-01 | Reset inicial del sistema | `reset = 1` (15 ns) | `PC = 0x00000000`, sin escrituras | `PC = 0x00000000` | PASS |
+| TC-02 | Secuencia de PC (`PC + 4`) | Flanco positivo `clk` | Incremento secuencial `+4` | `+4` constante | PASS |
+| TC-03 | `addi x1, x0, 10` | `x0 = 0` | `x1 = 10` | `x1 = 10` | PASS |
+| TC-04 | `addi x2, x0, 20` | `x0 = 0` | `x2 = 20` | `x2 = 20` | PASS |
+| TC-05 | `add x3, x1, x2` | `x1 = 10, x2 = 20` | `x3 = 30` | `x3 = 30` | PASS |
+| TC-06 | `sub x4, x3, x1` | `x3 = 30, x1 = 10` | `x4 = 20` | `x4 = 20` | PASS |
+| TC-07 | `sw x4, 0(x0)` | `x4 = 20, x0 = 0` | `Mem[0] = 20` | `Mem[0] = 20` | PASS |
+| TC-08 | `lw x5, 0(x0)` | `Mem[0] = 20, x0 = 0` | `x5 = 20` | `x5 = 20` | PASS |
+| TC-09 | `sub x4, x1, x2` (Propio) | `x1 = 15, x2 = 7` | `x4 = 8` | `x4 = 8` | PASS |
+| TC-10 | `and x5, x1, x2` (Propio) | `x1 = 15, x2 = 7` | `x5 = 15 & 7 = 7` | `x5 = 7` | PASS |
+| TC-11 | `or x6, x1, x2` (Propio) | `x1 = 15, x2 = 7` | `x6 = 15 \| 7 = 15` | `x6 = 15` | PASS |
+| TC-12 | `lw x7, 4(x0)` (Propio) | `Mem[4] = 22, x0 = 0` | `x7 = 22` | `x7 = 22` | PASS |
+| TC-13 | Inmunidad del registro `x0` | Escritura en `x0` | `x0 = 0` permanente | `x0 = 0` | PASS |
+
 
 
