@@ -13,7 +13,7 @@ Procesador RISC-V (RV32I parcial) uniciclo escrito en SystemVerilog. Ejecuta una
 
 ## Integrantes y roles
 
-| Integrante | Rol principal |
+| Integrante | Rol |
 |---|---|
 | Kevin Méndez Carvajal | Diseño e implementación del hardware (módulos nuevos e integración) |
 | John Hibbert Bonilla | Verificación (testbench de integración) |
